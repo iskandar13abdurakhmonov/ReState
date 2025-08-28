@@ -16,12 +16,6 @@ export const config = {
     endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
     projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
     databaseId: process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID,
-    galleriesCollectionId:
-    process.env.EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID,
-    reviewsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID,
-    agentsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID,
-    propertiesCollectionId:
-    process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID,
     bucketId: process.env.EXPO_PUBLIC_APPWRITE_BUCKET_ID,
 };
 
@@ -97,11 +91,11 @@ export async function getCurrentUser() {
     }
 }
 
-export async function getLatestProperties() {
+export async function getLatestProperties({ collectionId }: { collectionId: string }) {
     try {
         const result = await databases.listDocuments(
             config.databaseId!,
-            config.propertiesCollectionId!,
+            collectionId,
             [Query.orderAsc("$createdAt"), Query.limit(5)]
         );
 
@@ -116,10 +110,12 @@ export async function getProperties({
                                         filter,
                                         query,
                                         limit,
+                                        collectionId,
                                     }: {
     filter: string;
     query: string;
     limit?: number;
+    collectionId: string;
 }) {
     try {
         const buildQuery = [Query.orderDesc("$createdAt")];
@@ -140,7 +136,7 @@ export async function getProperties({
 
         const result = await databases.listDocuments(
             config.databaseId!,
-            config.propertiesCollectionId!,
+            collectionId,
             buildQuery
         );
 
@@ -151,12 +147,17 @@ export async function getProperties({
     }
 }
 
-// write function to get property by id
-export async function getPropertyById({ id }: { id: string }) {
+export async function getPropertyById({
+                                          id,
+                                          collectionId
+                                      }: {
+    id: string;
+    collectionId: string;
+}) {
     try {
         const result = await databases.getDocument(
             config.databaseId!,
-            config.propertiesCollectionId!,
+            collectionId,
             id
         );
         return result;
